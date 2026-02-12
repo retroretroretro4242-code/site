@@ -1,11 +1,19 @@
 export default async function handler(req, res) {
   try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
     const { firma, aciklama } = req.body;
+
+    if (!firma || !aciklama) {
+      return res.status(400).json({ error: "Eksik bilgi gönderildi" });
+    }
 
     const prompt = `Minimal modern logo for ${firma}, ${aciklama}, flat design, vector style, white background`;
 
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
+      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
       {
         method: "POST",
         headers: {
@@ -16,25 +24,26 @@ export default async function handler(req, res) {
       }
     );
 
-    // Eğer model hazır değilse JSON hata döndürür
     const contentType = response.headers.get("content-type");
 
-    if (contentType.includes("application/json")) {
-      const error = await response.json();
+    // Eğer JSON dönerse hata vardır
+    if (contentType && contentType.includes("application/json")) {
+      const errorData = await response.json();
       return res.status(500).json({
-        error: "Model henüz hazır değil. 10-20 saniye sonra tekrar dene.",
-        detail: error,
+        error: "Model hazır değil veya hata oluştu",
+        detail: errorData,
       });
     }
 
     const arrayBuffer = await response.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
 
-    res.status(200).json({
+    return res.status(200).json({
       image: `data:image/png;base64,${base64}`,
     });
+
   } catch (err) {
-    res.status(500).json({
+    return res.status(500).json({
       error: "Sunucu hatası",
       detail: err.message,
     });

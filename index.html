@@ -21,10 +21,23 @@ button{
     background:#00ffcc;
     cursor:pointer;
 }
+button:disabled{
+    background:gray;
+}
 img{
     margin-top:20px;
     max-width:400px;
     border-radius:20px;
+}
+#loading{
+    margin-top:15px;
+    color:#00ffcc;
+    font-weight:bold;
+}
+.footer{
+    margin-top:50px;
+    opacity:0.6;
+    font-size:14px;
 }
 </style>
 </head>
@@ -34,15 +47,26 @@ img{
 
 <input type="text" id="firma" placeholder="Firma Adı"><br>
 <textarea id="aciklama" placeholder="Firma ne iş yapıyor?"></textarea><br>
-<button onclick="logoOlustur()">Logo Oluştur</button>
+<button id="btn" onclick="logoOlustur()">Logo Oluştur</button>
+
+<div id="loading"></div>
 
 <br>
 <img id="sonuc"/>
+
+<div class="footer">
+    Yapan: <b>İBRAHİM İLGÜN</b>
+</div>
 
 <script>
 async function logoOlustur(){
     const firma = document.getElementById("firma").value;
     const aciklama = document.getElementById("aciklama").value;
+    const btn = document.getElementById("btn");
+    const loading = document.getElementById("loading");
+
+    btn.disabled = true;
+    loading.innerText = "⏳ Logo oluşturuluyor... Lütfen bekleyin (30-60 saniye sürebilir)";
 
     const response = await fetch("/api/logo",{
         method:"POST",
@@ -52,6 +76,9 @@ async function logoOlustur(){
 
     const data = await response.json();
     document.getElementById("sonuc").src = data.image;
+
+    loading.innerText = "✅ Logo hazır!";
+    btn.disabled = false;
 }
 </script>
 

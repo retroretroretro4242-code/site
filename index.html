@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Logo Generator</title>
+<style>
+body{
+    font-family:Arial;
+    background:#111;
+    color:white;
+    text-align:center;
+    margin-top:50px;
+}
+input,textarea,button{
+    padding:10px;
+    margin:10px;
+    border-radius:8px;
+    border:none;
+}
+button{
+    background:#00ffcc;
+    cursor:pointer;
+}
+img{
+    margin-top:20px;
+    max-width:400px;
+    border-radius:20px;
+}
+</style>
+</head>
+<body>
+
+<h1>🤖 AI Logo Generator</h1>
+
+<input type="text" id="firma" placeholder="Firma Adı"><br>
+<textarea id="aciklama" placeholder="Firma ne iş yapıyor?"></textarea><br>
+<button onclick="logoOlustur()">Logo Oluştur</button>
+
+<br>
+<img id="sonuc"/>
+
+<script>
+async function logoOlustur(){
+    const firma = document.getElementById("firma").value;
+    const aciklama = document.getElementById("aciklama").value;
+
+    const response = await fetch("/api/logo",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({firma,aciklama})
+    });
+
+    const data = await response.json();
+    document.getElementById("sonuc").src = data.image;
+}
+</script>
+
+</body>
+</html>

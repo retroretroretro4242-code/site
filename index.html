@@ -3,56 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <title>AI Logo Generator</title>
+
 <style>
 body{
-    font-family:Arial;
-    background:#111;
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     color:white;
     text-align:center;
-    margin-top:50px;
+    padding-top:60px;
 }
-input,textarea,button{
-    padding:10px;
-    margin:10px;
-    border-radius:8px;
+
+.container{
+    background:rgba(0,0,0,0.4);
+    padding:30px;
+    border-radius:20px;
+    width:400px;
+    margin:auto;
+    box-shadow:0 0 30px rgba(0,0,0,0.5);
+}
+
+input, textarea{
+    width:90%;
+    padding:12px;
+    margin:10px 0;
+    border-radius:10px;
     border:none;
 }
+
 button{
+    padding:12px 25px;
+    border:none;
+    border-radius:10px;
     background:#00ffcc;
+    font-weight:bold;
     cursor:pointer;
+    transition:0.3s;
 }
+
+button:hover{
+    background:#00ccaa;
+}
+
 button:disabled{
     background:gray;
+    cursor:not-allowed;
 }
-img{
-    margin-top:20px;
-    max-width:400px;
-    border-radius:20px;
-}
+
 #loading{
     margin-top:15px;
-    color:#00ffcc;
     font-weight:bold;
+    color:#00ffcc;
 }
+
+img{
+    margin-top:20px;
+    max-width:100%;
+    border-radius:15px;
+    background:white;
+    padding:10px;
+}
+
 .footer{
     margin-top:50px;
-    opacity:0.6;
+    opacity:0.7;
     font-size:14px;
 }
 </style>
 </head>
+
 <body>
 
-<h1>🤖 AI Logo Generator</h1>
+<div class="container">
+    <h1>🚀 AI Logo Generator</h1>
 
-<input type="text" id="firma" placeholder="Firma Adı"><br>
-<textarea id="aciklama" placeholder="Firma ne iş yapıyor?"></textarea><br>
-<button id="btn" onclick="logoOlustur()">Logo Oluştur</button>
+    <input type="text" id="firma" placeholder="Firma Adı">
 
-<div id="loading"></div>
+    <textarea id="aciklama" placeholder="Firma ne iş yapıyor?"></textarea>
 
-<br>
-<img id="sonuc"/>
+    <br>
+    <button id="btn" onclick="logoOlustur()">Logo Oluştur</button>
+
+    <div id="loading"></div>
+
+    <img id="sonuc">
+</div>
 
 <div class="footer">
     Yapan: <b>İBRAHİM İLGÜN</b>
@@ -60,24 +95,42 @@ img{
 
 <script>
 async function logoOlustur(){
+
     const firma = document.getElementById("firma").value;
     const aciklama = document.getElementById("aciklama").value;
     const btn = document.getElementById("btn");
     const loading = document.getElementById("loading");
+    const sonuc = document.getElementById("sonuc");
+
+    if(!firma || !aciklama){
+        loading.innerText = "⚠️ Lütfen tüm alanları doldurun.";
+        return;
+    }
 
     btn.disabled = true;
-    loading.innerText = "⏳ Logo oluşturuluyor... Lütfen bekleyin (30-60 saniye sürebilir)";
+    loading.innerText = "⏳ Logo oluşturuluyor... (30-60 saniye süebilir)";
+    sonuc.src = "";
 
-    const response = await fetch("/api/logo",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({firma,aciklama})
-    });
+    try{
+        const response = await fetch("/api/logo",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({firma,aciklama})
+        });
 
-    const data = await response.json();
-    document.getElementById("sonuc").src = data.image;
+        const data = await response.json();
 
-    loading.innerText = "✅ Logo hazır!";
+        if(data.image){
+            sonuc.src = data.image;
+            loading.innerText = "✅ Logo hazır!";
+        }else{
+            loading.innerText = "⚠️ " + (data.error || "Bir hata oluştu, tekrar deneyin.");
+        }
+
+    }catch(error){
+        loading.innerText = "❌ Sunucu hatası oluştu.";
+    }
+
     btn.disabled = false;
 }
 </script>

@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     const prompt = `Minimal modern logo for ${firma}, ${aciklama}, flat design, vector style, white background`;
 
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
+      "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-2-1",
       {
         method: "POST",
         headers: {
@@ -26,11 +26,10 @@ export default async function handler(req, res) {
 
     const contentType = response.headers.get("content-type");
 
-    // Eğer JSON dönerse hata vardır
     if (contentType && contentType.includes("application/json")) {
       const errorData = await response.json();
       return res.status(500).json({
-        error: "Model hazır değil veya hata oluştu",
+        error: "Model hata verdi",
         detail: errorData,
       });
     }

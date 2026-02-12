@@ -1,19 +1,11 @@
 export default async function handler(req, res) {
   try {
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" });
-    }
-
     const { firma, aciklama } = req.body;
-
-    if (!firma || !aciklama) {
-      return res.status(400).json({ error: "Eksik bilgi gönderildi" });
-    }
 
     const prompt = `Minimal modern logo for ${firma}, ${aciklama}, flat design, vector style, white background`;
 
     const response = await fetch(
-      "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-2-1",
+      "https://router.huggingface.co/hf-inference/models/runwayml/stable-diffusion-v1-5",
       {
         method: "POST",
         headers: {
@@ -37,12 +29,12 @@ export default async function handler(req, res) {
     const arrayBuffer = await response.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
 
-    return res.status(200).json({
+    res.status(200).json({
       image: `data:image/png;base64,${base64}`,
     });
 
   } catch (err) {
-    return res.status(500).json({
+    res.status(500).json({
       error: "Sunucu hatası",
       detail: err.message,
     });
